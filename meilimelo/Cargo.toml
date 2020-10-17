@@ -1,0 +1,17 @@
+[package]
+name = "meilimelo"
+version = "0.1.0"
+authors = ["Antoine POPINEAU <antoine@popineau.eu>"]
+edition = "2018"
+workspace = "../"
+
+[dependencies]
+hyper = "*"
+meilimelo-macros = { path = "../meilimelo-macros" }
+reqwest = { version = "^0.10", features = ["json"] }
+serde = { version = "^1.0", features = ["derive"] }
+thiserror = "^1.0"
+
+[dev-dependencies]
+futures = "*"
+tokio = { version = "^0.2", features = ["macros"] }
