@@ -1,5 +1,7 @@
 /// Utility to help build facet filters using the builder pattern
 ///
+/// Calling `build()` will produce a `Facets` struct that can be fed to `Query`'s [`facets()`](struct.Query.html#method.facets).
+///
 /// # Examples
 /// ```
 /// FacetBuilder::new("company", "ACME Corp")

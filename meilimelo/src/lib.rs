@@ -9,7 +9,12 @@ mod search;
 
 /// Most user-facing facilities can be imported through this
 pub mod prelude {
-  pub use crate::{facets::FacetBuilder, results::Results, search::Query, MeiliMelo};
+  pub use crate::{
+    facets::FacetBuilder,
+    results::Results,
+    search::{Crop, Query},
+    MeiliMelo,
+  };
 }
 
 use reqwest::{Client, Method, RequestBuilder};
@@ -18,7 +23,12 @@ use thiserror::Error;
 
 use self::search::QueryError;
 
-pub use self::{facets::FacetBuilder, indices::Index, insert::Update, search::Query};
+pub use self::{
+  facets::FacetBuilder,
+  indices::Index,
+  insert::Update,
+  search::{Crop, Query},
+};
 pub use meilimelo_macros::schema;
 
 /// Pseudo-marker trait for MeiliSearch schemas

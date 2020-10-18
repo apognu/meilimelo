@@ -49,6 +49,14 @@ pub struct Query<'m> {
   matches: bool,
 }
 
+/// Enum representing an attribute crop instruction
+pub enum Crop<'a> {
+  /// Crop the specified attribute at the global [`cropLength`](struct.Query.html#method.crop_length) length
+  Attr(&'a str),
+  /// Crop the specified attribute at the given length
+  At(&'a str, i64),
+}
+
 #[derive(Debug, Deserialize)]
 pub struct QueryError {
   #[serde(rename = "errorType")]
@@ -205,14 +213,14 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.crop(&[("overview", None), ("description", Some(10))]);
+  /// q.crop(&[Crop::Attr("overview"), Crop::At("description", 10)]);
   /// ```
-  pub fn crop(mut self, attributes: &'m [(&'m str, Option<i64>)]) -> Query<'m> {
+  pub fn crop(mut self, attributes: &'m [Crop]) -> Query<'m> {
     let crops = attributes
       .iter()
-      .map(|(attribute, length)| match length {
-        Some(length) => format!("{}:{}", attribute, length),
-        None => attribute.to_string(),
+      .map(|spec| match spec {
+        Crop::Attr(attribute) => attribute.to_string(),
+        Crop::At(attribute, length) => format!("{}:{}", attribute, length),
       })
       .collect();
 

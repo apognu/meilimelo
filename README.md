@@ -66,7 +66,7 @@ meili
 ```rust
 meili
   .attributes(&["firstname", "lastname", "bio"])
-  .crop(&[("bio", None)])
+  .crop(&[Crop::At("bio", 32)])
   .crop_length(10)
   .highlight(&["bio"])
   .matches(true);
