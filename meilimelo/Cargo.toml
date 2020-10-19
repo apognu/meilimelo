@@ -2,6 +2,14 @@
 name = "meilimelo"
 version = "0.1.0"
 authors = ["Antoine POPINEAU <antoine@popineau.eu>"]
+license = "MIT"
+
+description = "API client to MeiliSearch"
+keywords = ["search", "meilisearch"]
+categories = ["database"]
+homepage = "https://github.com/apognu/meilimelo"
+readme = "../README.md"
+
 edition = "2018"
 workspace = "../"
 
