@@ -72,24 +72,43 @@ meili
   .matches(true);
 ```
 
-## List indices
+## Index management
 
-You can query the list of indices with the following:
+Basic operation on indexes can be performed:
 
 ```rust
+// Creating index
+meili.create_index("employees", "Employees")?;
+
+// Listing indices
 for index in &meili.indices().await? {
   println!("{}", index.name);
 }
 ```
 
-## Index documents
+## Document management
 
-You can index a collection of `Serialize` documents like so:
+You can index a collection of `Serialize` documents like so (listing and deleting documents is also supported):
+
 ```rust
+// Indexing documents
 let doc = Employee {
   firstname: "Luke".to_string(),
   lastname: "Skywalker".to_string()
 };
 
 meili.insert("employees", vec![doc]);
+
+// Looping over in-order documents
+for doc in &meili.list_documents::<Employee>("employees").await? {
+  println!("{} {}", doc.firstname, doc.lastname);
+}
+
+// Getting document via primary key
+let doc = meili.get_document::<Employee>("employees", "lskywalker").await?;
+
+println!("{} {}", doc.firstname, doc.lastname);
+
+// Deleting document
+meili.delete_document("employees", "lskywalker").await?;
 ```

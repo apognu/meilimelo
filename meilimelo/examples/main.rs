@@ -10,11 +10,13 @@ struct Employee {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let meili = MeiliMelo::new("http://meilisearch.example.com:7700").with_secret_key("abcdef");
-  let people = meili.search("persons").query("johnson").run::<Employee>().await?;
+  let query = meili.search("persons").query("johnson").run::<Employee>();
 
   for index in &meili.indices().await? {
     println!("{}", index.name);
   }
+
+  let people = query.await?;
 
   println!("Hits: {}", people.hits);
 

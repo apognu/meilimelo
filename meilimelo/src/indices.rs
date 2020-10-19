@@ -15,7 +15,7 @@ pub struct Index {
   pub updated_at: Option<String>,
 }
 
-pub(crate) async fn get_indices(meili: &MeiliMelo<'_>) -> Result<Vec<Index>, Error> {
+pub(crate) async fn list(meili: &MeiliMelo<'_>) -> Result<Vec<Index>, Error> {
   let response = meili
     .request(Method::GET, "/indexes")
     .send()
@@ -26,4 +26,36 @@ pub(crate) async fn get_indices(meili: &MeiliMelo<'_>) -> Result<Vec<Index>, Err
     .map_err(|err| Error::UpstreamError(err))?;
 
   Ok(response)
+}
+
+#[derive(Debug, Serialize)]
+struct IndexCreate<'a> {
+  uid: &'a str,
+  name: &'a str,
+}
+
+pub(crate) async fn create(meili: &MeiliMelo<'_>, uid: &str, name: &str) -> Result<Index, Error> {
+  let body = IndexCreate { uid, name };
+
+  let response = meili
+    .request(Method::POST, "/indexes")
+    .json(&body)
+    .send()
+    .await
+    .map_err(|err| Error::UpstreamError(err))?
+    .json::<Index>()
+    .await
+    .map_err(|err| Error::UpstreamError(err))?;
+
+  Ok(response)
+}
+
+pub(crate) async fn delete(meili: &MeiliMelo<'_>, uid: &str) -> Result<(), Error> {
+  meili
+    .request(Method::DELETE, &format!("/indexes/{}", uid))
+    .send()
+    .await
+    .map_err(|err| Error::UpstreamError(err))?;
+
+  Ok(())
 }

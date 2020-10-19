@@ -1,2 +1,3 @@
 /target
 Cargo.lock
+/meilimelo/examples/local.rs

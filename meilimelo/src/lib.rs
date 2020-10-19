@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate serde;
 
+mod documents;
 mod facets;
 mod indices;
-mod insert;
 mod results;
 mod search;
 
@@ -24,9 +24,9 @@ use thiserror::Error;
 use self::search::QueryError;
 
 pub use self::{
+  documents::Update,
   facets::FacetBuilder,
   indices::Index,
-  insert::Update,
   search::{Crop, Query},
 };
 pub use meilimelo_macros::schema;
@@ -116,7 +116,38 @@ impl<'m> MeiliMelo<'m> {
   /// }
   /// ```
   pub async fn indices(&'m self) -> Result<Vec<Index>, Error> {
-    indices::get_indices(self).await
+    indices::list(self).await
+  }
+
+  /// Create a new index
+  ///
+  /// # Arguments
+  ///
+  /// * `uid` - unique ID for the new index
+  /// * `name` - human-readable name for the index
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// meili.create_index("employees", "Employees").await?;
+  /// ```
+  pub async fn create_index<'a>(&'m self, uid: &str, name: &str) -> Result<Index, Error> {
+    indices::create(self, uid, name).await
+  }
+
+  /// Delete an existing index
+  ///
+  /// # Arguments
+  ///
+  /// * `uid` - unique ID to the index to be deleted
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// meili.delete_index("employees").await?;
+  /// ```
+  pub async fn delete_index(&'m self, uid: &str) -> Result<(), Error> {
+    indices::delete(self, uid).await
   }
 
   /// Index a collection of documents into MeiliSearch
@@ -137,6 +168,62 @@ impl<'m> MeiliMelo<'m> {
   where
     T: Serialize,
   {
-    insert::insert(self, index, documents).await
+    documents::insert(self, index, documents).await
+  }
+
+  /// List documents in order
+  ///
+  /// # Arguments
+  ///
+  /// * `index` - name of the index to browse
+  /// * `limit` - number of documents to return
+  /// * `offset` - offset to the first document to return
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// for document in &meili.list_documents::<Employee>().await? {
+  ///   println!("{} {}", document.firstname, document.lastname);
+  /// }
+  /// ```
+  pub async fn list_documents<R>(&'m self, index: &str, limit: i64, offset: i64) -> Result<Vec<R>, Error>
+  where
+    for<'de> R: Deserialize<'de>,
+  {
+    documents::list(self, index, limit, offset).await
+  }
+
+  /// List documents in order
+  ///
+  /// # Arguments
+  ///
+  /// * `index` - name of the index to browse
+  /// * `uid` - Unique ID of the document to return
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// meili.get_document::<Employee>("lskywalker").await?;
+  /// ```
+  pub async fn get_document<R>(&'m self, index: &str, uid: &str) -> Result<R, Error>
+  where
+    for<'de> R: Deserialize<'de>,
+  {
+    documents::get(self, index, uid).await
+  }
+
+  /// Delete a document
+  ///
+  /// # Arguments
+  ///
+  /// * `uid` - Unique ID of the document to delete
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// meili.delete_document("employees", "lskywalker").await?;
+  /// ```
+  pub async fn delete_document(&'m self, index: &str, uid: &str) -> Result<Update, Error> {
+    documents::delete(self, index, uid).await
   }
 }
