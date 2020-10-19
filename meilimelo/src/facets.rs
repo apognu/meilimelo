@@ -4,6 +4,8 @@
 ///
 /// # Examples
 /// ```
+/// # use meilimelo::prelude::*;
+/// #
 /// FacetBuilder::new("company", "ACME Corp")
 ///   .or("company", "Big Corp")
 ///   .and("roles", "Tech")

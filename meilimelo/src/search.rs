@@ -12,13 +12,23 @@ use crate::{facets::Facets, results::Results, Error, MeiliMelo, Schema};
 /// # Examples
 ///
 /// ```
-/// let results = m.search("employees")
+/// # use meilimelo::prelude::*;
+/// #
+/// # #[meilimelo::schema]
+/// # struct Employee;
+/// #
+/// # #[tokio::main]
+/// # async fn main() {
+/// let meili = MeiliMelo::new("host");
+///
+/// let results = meili.search("employees")
 ///   .query("johnson")
 ///   .facets(FacetBuilder::new("company", "ACME Corp").build())
 ///   .distribution(&["roles"])
 ///   .limit(10)
 ///   .run::<Employee>()
 ///   .await;
+/// # }
 /// ```
 #[derive(Debug, Serialize)]
 pub struct Query<'m> {
@@ -96,7 +106,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.query("streamer");
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").query("streamer");
   /// ```
   pub fn query(mut self, query: &'m str) -> Query {
     self.query = Some(query);
@@ -112,7 +124,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.filters("company = ACME AND age > 23");
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").filters("company = ACME AND age > 23");
   /// ```
   pub fn filters(mut self, filters: &'m str) -> Query {
     self.filters = Some(filters);
@@ -128,7 +142,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.limit(10);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").limit(10);
   /// ```
   pub fn limit(mut self, limit: i64) -> Query<'m> {
     self.limit = Some(limit);
@@ -144,7 +160,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.offset(20);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").offset(20);
   /// ```
   pub fn offset(mut self, offset: i64) -> Query<'m> {
     self.offset = Some(offset);
@@ -162,8 +180,11 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.facets(FacetBuilder::new("company", "ACME Corp")
-  ///   .or("company": "Big Corp")
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index")
+  ///   .facets(FacetBuilder::new("company", "ACME Corp")
+  ///   .or("company", "Big Corp")
   ///   .and("roles", "Tech")
   ///   .build());
   /// ```
@@ -181,7 +202,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.retrieve(&["firstname", "lastname"]);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").retrieve(&["firstname", "lastname"]);
   /// ```
   pub fn retrieve(mut self, attributes: &'m [&'m str]) -> Query<'m> {
     self.retrieve = Some(attributes);
@@ -197,7 +220,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.distribution(&["firstname", "lastname"]);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").distribution(&["firstname", "lastname"]);
   /// ```
   pub fn distribution(mut self, facets: &'m [&'m str]) -> Query<'m> {
     self.distribution = Some(facets);
@@ -213,7 +238,13 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.crop(&[Crop::Attr("overview"), Crop::At("description", 10)]);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index")
+  ///   .crop(&[
+  ///      Crop::Attr("overview"),
+  ///      Crop::At("description", 10)
+  ///    ]);
   /// ```
   pub fn crop(mut self, attributes: &'m [Crop]) -> Query<'m> {
     let crops = attributes
@@ -237,7 +268,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.crop_length(32);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").crop_length(32);
   /// ```
   pub fn crop_length(mut self, length: i64) -> Query<'m> {
     self.crop_length = Some(length);
@@ -253,7 +286,9 @@ impl<'m> Query<'m> {
   /// # Examples
   ///
   /// ```
-  /// q.highlight(&["overview"]);
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// MeiliMelo::new("host").search("index").highlight(&["overview"]);
   /// ```
   pub fn highlight(mut self, attributes: &'m [&'m str]) -> Query<'m> {
     self.highlight = Some(attributes);
@@ -291,5 +326,108 @@ impl<'m> Query<'m> {
         Err(Error::InvalidQuery(error))
       }
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::prelude::*;
+
+  #[test]
+  fn index() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees");
+
+    assert_eq!(query.index, "employees");
+    assert_eq!(query.query, None);
+  }
+
+  #[test]
+  fn query() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").query("skywalker");
+
+    assert_eq!(query.query, Some("skywalker"));
+  }
+
+  #[test]
+  fn filters() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").filters("name = skywalker");
+
+    assert_eq!(query.filters, Some("name = skywalker"));
+  }
+
+  #[test]
+  fn limit_offset() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").limit(10).offset(20);
+
+    assert_eq!(query.limit, Some(10));
+    assert_eq!(query.offset, Some(20));
+  }
+
+  #[test]
+  fn facets() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").facets(
+      FacetBuilder::new("company", "ACME")
+        .or("company", "Corp")
+        .and("department", "IT")
+        .build(),
+    );
+
+    assert_eq!(
+      query.facets,
+      Some(vec![
+        vec!["company:ACME".to_string(), "company:Corp".to_string()],
+        vec!["department:IT".to_string()]
+      ])
+    );
+  }
+
+  #[test]
+  fn retrieve() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").retrieve(&["firstname", "lastname"]);
+
+    assert_eq!(query.retrieve, Some(&["firstname", "lastname"] as &[&str]))
+  }
+
+  #[test]
+  fn distribution() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").distribution(&["age"]);
+
+    assert_eq!(query.distribution, Some(&["age"] as &[&str]));
+  }
+
+  #[test]
+  fn crop() {
+    let meili = MeiliMelo::new("");
+    let query = meili
+      .search("employees")
+      .crop(&[Crop::Attr("firstname"), Crop::At("lastname", 10)]);
+
+    assert_eq!(
+      query.crop,
+      Some(vec!["firstname".to_string(), "lastname:10".to_string()])
+    );
+  }
+
+  #[test]
+  fn crop_length() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").crop_length(32);
+
+    assert_eq!(query.crop_length, Some(32));
+  }
+
+  #[test]
+  fn highlight() {
+    let meili = MeiliMelo::new("");
+    let query = meili.search("employees").highlight(&["overview", "bio"]);
+
+    assert_eq!(query.highlight, Some(&["overview", "bio"] as &[&str]));
   }
 }

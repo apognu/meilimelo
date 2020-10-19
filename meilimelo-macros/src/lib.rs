@@ -13,6 +13,8 @@ use syn::{parse_macro_input, ItemStruct};
 /// # Example
 ///
 /// ```
+/// use meilimelo::prelude::*;
+///
 /// #[meilimelo::schema]
 /// struct Employee {
 ///   firstname: String,
@@ -22,12 +24,14 @@ use syn::{parse_macro_input, ItemStruct};
 ///
 /// The above struct renders as follows:
 ///
-/// ```
+/// ```ignore
+/// #[derive(Debug, Default, Serialize, Deserialize)]
 /// struct FormattedEmployee {
 ///   firstname: String,
 ///   lastname: String
 /// }
 ///
+/// #[derive(Debug, Default, Serialize, Deserialize)]
 /// struct Employee {
 ///   firstname: String,
 ///   lastname: String,

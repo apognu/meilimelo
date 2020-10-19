@@ -1,5 +1,8 @@
 # meilimelo
 
+![MIT License](https://img.shields.io/badge/license-MIT-informational?style=flat-square)
+![Crates.io](https://img.shields.io/crates/v/meilimelo?style=flat-square)
+
 Meilimelo is a simple library to perform queries against [Meilisearch](https://github.com/meilisearch/MeiliSearch).
 
 ## Example

@@ -85,6 +85,8 @@ impl<'m> MeiliMelo<'m> {
   /// # Examples
   ///
   /// ```
+  /// use meilimelo::prelude::*;
+  ///
   /// let m = MeiliMelo::new("https://meilisearch.example.com:7700")
   ///   .with_secret_key("abcdef");
   /// ```
@@ -110,10 +112,17 @@ impl<'m> MeiliMelo<'m> {
   ///
   /// # Examples
   ///
-  /// ```
-  /// for index in m.indices().await? {
+  /// ```no_run
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// # #[tokio::main]
+  /// # async fn main() {
+  /// let meili = MeiliMelo::new("host");
+  ///
+  /// for index in meili.indices().await.unwrap() {
   ///   println!("{}", index.name);
   /// }
+  /// # }
   /// ```
   pub async fn indices(&'m self) -> Result<Vec<Index>, Error> {
     indices::list(self).await
@@ -129,7 +138,14 @@ impl<'m> MeiliMelo<'m> {
   /// # Examples
   ///
   /// ```
-  /// meili.create_index("employees", "Employees").await?;
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// # #[tokio::main]
+  /// # async fn main() {
+  /// MeiliMelo::new("host")
+  ///   .create_index("employees", "Employees")
+  ///   .await;
+  /// # }
   /// ```
   pub async fn create_index<'a>(&'m self, uid: &str, name: &str) -> Result<Index, Error> {
     indices::create(self, uid, name).await
@@ -144,7 +160,14 @@ impl<'m> MeiliMelo<'m> {
   /// # Examples
   ///
   /// ```
-  /// meili.delete_index("employees").await?;
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// # #[tokio::main]
+  /// # async fn main() {
+  /// MeiliMelo::new("host")
+  ///   .delete_index("employees")
+  ///   .await;
+  /// # }
   /// ```
   pub async fn delete_index(&'m self, uid: &str) -> Result<(), Error> {
     indices::delete(self, uid).await
@@ -160,9 +183,17 @@ impl<'m> MeiliMelo<'m> {
   /// # Examples
   ///
   /// ```
-  /// let docs = vec![Employee::new("Luke", "Skywalker"), Employee::new("Leia", "Organa")];
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// # #[derive(serde::Serialize)]
+  /// # struct Employee { firstname: String, lastname: String }
+  /// #
+  /// let docs = vec![
+  ///   Employee { firstname: "Luke".to_string(), lastname: "Skywalker".to_string() }
+  /// ];
   ///
-  /// m.insert("employees", &docs);
+  /// MeiliMelo::new("host")
+  ///   .insert("employees", &docs);
   /// ```
   pub async fn insert<T>(&'m self, index: &str, documents: &Vec<T>) -> Result<Update, Error>
   where
@@ -181,10 +212,20 @@ impl<'m> MeiliMelo<'m> {
   ///
   /// # Examples
   ///
-  /// ```
-  /// for document in &meili.list_documents::<Employee>().await? {
+  /// ```no_run
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// # #[derive(serde::Deserialize)]
+  /// # struct Employee { firstname: String, lastname: String };
+  /// #
+  /// # #[tokio::main]
+  /// # async fn main() {
+  /// let meili = MeiliMelo::new("host");
+  ///
+  /// for document in &meili.list_documents::<Employee>("employees", 10, 0).await.unwrap() {
   ///   println!("{} {}", document.firstname, document.lastname);
   /// }
+  /// # }
   /// ```
   pub async fn list_documents<R>(&'m self, index: &str, limit: i64, offset: i64) -> Result<Vec<R>, Error>
   where
@@ -202,8 +243,18 @@ impl<'m> MeiliMelo<'m> {
   ///
   /// # Examples
   ///
-  /// ```
-  /// meili.get_document::<Employee>("lskywalker").await?;
+  /// ```no_run
+  /// # use meilimelo::{prelude::*, Error};
+  /// #
+  /// # #[derive(serde::Deserialize)]
+  /// # struct Employee;
+  /// #
+  /// # #[tokio::main]
+  /// # async fn main() {
+  /// MeiliMelo::new("")
+  ///   .get_document::<Employee>("employees", "lskywalker")
+  ///   .await;
+  /// # }
   /// ```
   pub async fn get_document<R>(&'m self, index: &str, uid: &str) -> Result<R, Error>
   where
@@ -220,8 +271,15 @@ impl<'m> MeiliMelo<'m> {
   ///
   /// # Examples
   ///
-  /// ```
-  /// meili.delete_document("employees", "lskywalker").await?;
+  /// ```no_run
+  /// # use meilimelo::prelude::*;
+  /// #
+  /// # #[tokio::main]
+  /// # async fn main() {
+  /// MeiliMelo::new("host")
+  ///   .delete_document("employees", "lskywalker")
+  ///   .await;
+  /// # }
   /// ```
   pub async fn delete_document(&'m self, index: &str, uid: &str) -> Result<Update, Error> {
     documents::delete(self, index, uid).await
